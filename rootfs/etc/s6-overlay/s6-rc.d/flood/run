@@ -1,0 +1,13 @@
+#!/command/with-contenv sh
+
+if [ "$PUID" -eq 0 ] || [ "$PGID" -eq 0 ]; then
+	exec node --enable-source-maps --use_strict /flood/index.js \
+		--host 0.0.0.0 \
+		--port "${FLOOD_PORT}" \
+		--rundir "${CONFIG_DIR}/flood"
+else
+	exec s6-setuidgid "$PUID:$PGID" node --enable-source-maps --use_strict /flood/index.js \
+        --host 0.0.0.0 \
+		--port "${FLOOD_PORT}" \
+		--rundir "${CONFIG_DIR}/flood"
+fi

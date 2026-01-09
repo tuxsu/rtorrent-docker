@@ -1,0 +1,55 @@
+############### 网络与连接配置 ###############
+# 最小和最大对等连接端口，确保防火墙开放此范围
+network.port_range.set = 49164-49164
+network.port_random.set = no
+
+# 全局上传/下载速率限制 (KiB/s)，0为无限制
+throttle.global_up.max_rate.set_kb = 0
+throttle.global_down.max_rate.set_kb = 0
+
+# 单个任务上传/下载速率限制
+throttle.max_uploads.set = 50
+throttle.max_uploads.global.set = 150
+throttle.max_downloads.set = 100
+throttle.max_downloads.global.set = 300
+
+# 协议加密，提高隐私性和规避ISP限制
+protocol.encryption.set = allow_incoming,try_outgoing,enable_retry
+
+# DHT (分布式哈希表) 和 PEX (对等交换) 设置，显著提升找种速度
+dht.mode.set = auto
+dht.port.set = 49164 # 通常与监听端口范围一致
+peer_exchange.set = yes
+
+############### 目录与存储配置 ###############
+# 核心目录：下载完成、会话、监视、种子文件
+directory.default.set = /downloads
+# don't edit it
+session.path.set = /config/.rotrrent/session
+schedule2 = watch_directory,5,5,load_start=/watched/*.torrent
+schedule2 = untied_directory,5,5,stop_untied=
+schedule2 = monitor_load, 10, 10, load_start=/watched/*.torrent
+
+# 紧凑型分配模式，减少磁盘碎片，但对SSD寿命有细微影响。
+system.file.allocate.set = 1 # 0=关闭，1=快速（稀疏文件），2=完全（预分配）
+
+
+############### 调度与队列管理 ###############
+# 计划任务：每600秒（10分钟）尝试连接断开的对等节点
+schedule2 = schedule_ratio,600,600,"ratio.disable=1,ratio.enable=1"
+
+############### 性能调优 ###############
+# 最大同时打开文件数，需与系统 ulimit 匹配。高并发任务必须调高。
+network.max_open_files.set = 8192
+# 每个任务的连接数限制，防止被某些种子拖垮
+network.http.max_open.set = 50
+network.max_open_sockets.set = 1024
+
+# 内存缓存大小 (KiB)，大幅提升频繁读写小文件的性能。
+# 公式建议：任务数 * 平均文件大小 / 4，但不超过物理内存的1/4。
+pieces.memory.max.set = 2048M # 例如 4GB内存服务器可设为 1024M-2048M
+
+############### XML-RPC (SCGI) 配置 - 实现远程控制的关键 ###############
+system.daemon.set = true
+network.scgi.open_local = (cat,(session.path),/rpc.sock)
+schedule2 = socket_chmod, 0, 0, "execute.nothrow=chmod,770,(cat,(session.path),/rpc.sock)"

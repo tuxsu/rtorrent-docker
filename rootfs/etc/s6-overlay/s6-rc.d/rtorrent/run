@@ -1,0 +1,9 @@
+#!/command/with-contenv sh
+
+find "$CONFIG_DIR" -name "rtorrent.lock" -type f -delete
+
+if [ "$PUID" -eq 0 ] || [ "$PGID" -eq 0 ]; then
+	exec /usr/local/bin/rtorrent -n -o import="$CONFIG_DIR/rtorrent.rc"
+else 
+	exec s6-setuidgid "$PUID:$PGID" /usr/local/bin/rtorrent -n -o import="$CONFIG_DIR/rtorrent.rc"
+fi
