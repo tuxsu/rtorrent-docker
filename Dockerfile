@@ -82,7 +82,9 @@ RUN set -eux; \
 
 RUN set -eux; \
 	mkdir -p /target /target/flood; \
-	# rm -rf /libtorrent-root/usr/local/lib/pkgconfig; \
+	rm -rf /libtorrent-root/usr/local/include; \
+	rm -rf /libtorrent-root/usr/local/lib/libtorrent.la; \
+	rm -rf /libtorrent-root/usr/local/lib/pkgconfig; \
 	cp -a /libtorrent-root/. /target; \
 	cp -a /rtorrent-root/. /target; \
 	cp -a /src/flood/dist/. /target/flood; \
@@ -104,6 +106,7 @@ RUN set -eux; \
         nodejs \
         shadow \
         ca-certificates \
+		coreutils \
 		curl
 
 COPY --from=builder /target /
