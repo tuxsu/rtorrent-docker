@@ -68,7 +68,7 @@ RUN set -eux; \
     npm run build
 
 RUN set -eux; \
-	mkdir -p /s6-overlay
+	mkdir -p /s6-overlay; \
     case "$TARGETARCH" in \
       amd64) S6_ARCH=x86_64 ;; arm64) S6_ARCH=aarch64 ;; \
       arm) S6_ARCH=armhf ;; ppc64le) S6_ARCH=powerpc64le ;; \
