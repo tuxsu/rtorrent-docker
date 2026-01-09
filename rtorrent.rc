@@ -20,7 +20,7 @@ protocol.encryption.set = allow_incoming,try_outgoing,enable_retry
 dht.mode.set = auto
 # 通常与监听端口范围一致
 dht.port.set = 49164
-peer_exchange.set = yes
+protocol.pex.set = yes
 
 ############### 目录与存储配置 ###############
 # 核心目录：下载完成、会话、监视、种子文件
@@ -32,7 +32,8 @@ schedule2 = untied_directory,5,5,stop_untied=
 schedule2 = monitor_load, 10, 10, load_start=/watched/*.torrent
 
 # 紧凑型分配模式，减少磁盘碎片，但对SSD寿命有细微影响。
-system.file.allocate.set = 1 # 0=关闭，1=快速（稀疏文件），2=完全（预分配）
+# 0=关闭，1=快速（稀疏文件），2=完全（预分配）
+system.file.allocate.set = 1
 
 
 ############### 调度与队列管理 ###############
@@ -48,7 +49,8 @@ network.max_open_sockets.set = 1024
 
 # 内存缓存大小 (KiB)，大幅提升频繁读写小文件的性能。
 # 公式建议：任务数 * 平均文件大小 / 4，但不超过物理内存的1/4。
-pieces.memory.max.set = 2048M # 例如 4GB内存服务器可设为 1024M-2048M
+# 例如 4GB内存服务器可设为 1024M-2048M
+pieces.memory.max.set = 2048M
 
 ############### XML-RPC (SCGI) 配置 - 实现远程控制的关键 ###############
 system.daemon.set = true
