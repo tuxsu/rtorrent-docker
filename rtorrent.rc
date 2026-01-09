@@ -2,6 +2,7 @@
 # 最小和最大对等连接端口，确保防火墙开放此范围
 network.port_range.set = 49164-49164
 network.port_random.set = no
+network.xmlrpc.size_limit.set = 2000000
 
 # 全局上传/下载速率限制 (KiB/s)，0为无限制
 throttle.global_up.max_rate.set_kb = 0

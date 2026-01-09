@@ -72,7 +72,7 @@ jobs:
 
   build:
     needs: setup
-    runs-on: ${{ (matrix.platform == 'linux/amd64') && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
+    runs-on: ${{ (matrix.platform == 'linux/arm64' || matrix.platform == 'linux/arm/v7') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:

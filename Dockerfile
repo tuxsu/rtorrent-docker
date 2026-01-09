@@ -1,9 +1,30 @@
 ARG ALPINE_VERSION=latest
+FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS flood_builder
+
+ARG FLOOD_VERSION
+
+RUN set -eux; \
+    apk add --no-cache \
+	git \
+	nodejs \
+	npm
+
+WORKDIR /src
+RUN set -eux; \
+    git clone \
+    --branch "$FLOOD_VERSION" \
+    --depth 1 \
+    --single-branch \
+    https://github.com/jesec/flood.git .
+
+RUN set -eux; \
+    npm install; \
+    npm run build
+
 FROM alpine:${ALPINE_VERSION} AS builder
 
 ARG LIBTORRENT_VERSION
 ARG RTORRENT_VERSION
-ARG FLOOD_VERSION
 ARG TARGETARCH
 
 RUN set -eux; \
@@ -21,8 +42,6 @@ RUN set -eux; \
       libsigc++-dev \
       xmlrpc-c-dev \
       ncurses-dev \
-      nodejs \
-      npm \
       ca-certificates \
 	  curl \
 	  pkgconfig \
@@ -42,18 +61,15 @@ RUN set -eux; \
     --branch "$RTORRENT_VERSION" \
     --depth 1 \
     --single-branch \
-    https://github.com/rakshasa/rtorrent.git; \
-    git clone \
-    --branch "$FLOOD_VERSION" \
-    --depth 1 \
-    --single-branch \
-    https://github.com/jesec/flood.git
+    https://github.com/rakshasa/rtorrent.git
 
 WORKDIR /src/libtorrent
 RUN set -eux; \
     autoreconf -ivf; \
     ./configure; \
-    make -j"$(($(nproc) - 1))"; \
+    NPROC=$(nproc); \
+    if [ "$NPROC" -gt 1 ]; then JOBS=$((NPROC - 1)); else JOBS=1; fi; \
+    make -j"$JOBS"; \
 	make install; \
     make install DESTDIR=/libtorrent-root
 
@@ -61,13 +77,10 @@ WORKDIR /src/rtorrent
 RUN set -eux; \
     autoreconf -ivf; \
     ./configure --with-xmlrpc-c; \
-    make -j"$(($(nproc) - 1))"; \
+    NPROC=$(nproc); \
+    if [ "$NPROC" -gt 1 ]; then JOBS=$((NPROC - 1)); else JOBS=1; fi; \
+    make -j"$JOBS"; \
     make install DESTDIR=/rtorrent-root
-
-WORKDIR /src/flood
-RUN set -eux; \
-    npm install; \
-    npm run build
 
 RUN set -eux; \
 	mkdir -p /s6-overlay; \
@@ -83,15 +96,18 @@ RUN set -eux; \
     done
 
 RUN set -eux; \
-	mkdir -p /target /target/flood; \
+	find /rtorrent-root -type f -executable -exec strip --strip-all {} + 2>/dev/null || true; \
+    find /libtorrent-root -name "*.so*" -exec strip --strip-unneeded {} + 2>/dev/null || true; \
+    find /libtorrent-root -name "*.a" -exec strip --strip-debug {} + 2>/dev/null || true; \
+	mkdir -p /target; \
 	rm -rf /libtorrent-root/usr/local/include; \
 	rm -rf /libtorrent-root/usr/local/lib/libtorrent.la; \
 	rm -rf /libtorrent-root/usr/local/lib/pkgconfig; \
 	cp -a /libtorrent-root/. /target; \
 	cp -a /rtorrent-root/. /target; \
-	cp -a /src/flood/dist/. /target/flood; \
 	cp -a /s6-overlay/. /target
 
+COPY --from=flood_builder /src/dist/. /target/flood
 
 FROM alpine:${ALPINE_VERSION}
 
