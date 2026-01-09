@@ -25,6 +25,8 @@ RUN set -eux; \
       npm \
       ca-certificates \
 	  curl \
+	  pkgconfig \
+	  cppunit-dev \
 	  tar \
 	  xz
 
@@ -58,7 +60,7 @@ RUN set -eux; \
 WORKDIR /src/rtorrent
 RUN set -eux; \
     autoreconf -ivf; \
-    ./configure; \
+    ./configure --with-xmlrpc-c; \
     make -j"$(($(nproc) - 1))"; \
     make install DESTDIR=/rtorrent-root
 
