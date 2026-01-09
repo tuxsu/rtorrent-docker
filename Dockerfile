@@ -23,7 +23,10 @@ RUN set -eux; \
       ncurses-dev \
       nodejs \
       npm \
-      ca-certificates
+      ca-certificates \
+	  curl \
+	  tar \
+	  xz
 
 WORKDIR /src
 
@@ -49,6 +52,7 @@ RUN set -eux; \
     autoreconf -ivf; \
     ./configure; \
     make -j"$(($(nproc) - 1))"; \
+	make install; \
     make install DESTDIR=/libtorrent-root
 
 WORKDIR /src/rtorrent
