@@ -36,7 +36,7 @@ else
 fi
 
 echo "Applying file permissions..."
-mkdir -p "$CONFIG_DIR" "$DOWNLOAD_DIR" "$CONFIG_DIR/.rotrrent/session" "$WATCH_DIR"
+mkdir -p "$CONFIG_DIR" "$DOWNLOAD_DIR" "$CONFIG_DIR/.rtorrent/session" "$WATCH_DIR"
 
 if [ ! -f "$CONFIG_DIR/rtorrent.rc" ]; then
     echo "Config file not found, copying default rtorrent.rc to $CONFIG_DIR"

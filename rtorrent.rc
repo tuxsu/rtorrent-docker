@@ -27,7 +27,7 @@ protocol.pex.set = yes
 # 核心目录：下载完成、会话、监视、种子文件
 directory.default.set = /downloads
 # don't edit it
-session.path.set = /config/.rotrrent/session
+session.path.set = /config/.rtorrent/session
 schedule2 = watch_directory,5,5,load_start=/watched/*.torrent
 schedule2 = untied_directory,5,5,stop_untied=
 schedule2 = monitor_load, 10, 10, load_start=/watched/*.torrent
@@ -60,16 +60,4 @@ schedule2 = socket_chmod, 0, 0, "execute.nothrow=chmod,770,(cat,(session.path),/
 
 
 # ========== 自动为“新加入的种子”添加 tracker ==========
-# 条件：
-#   1. 不管当前有没有 tracker
-#   2. 不是私有种子（PT）
-system.method.insert = d.add_trackers_from_file, simple, \
-  "branch=not=d.is_private=, \
-   execute.nothrow=sh,-c,\
-     \"i=0; \
-      while read -r tr; do \
-        [ -n \\\"$tr\\\" ] && d.tracker.insert=\\\"$d.hash\\\",0,\\\"$i\\\",\\\"$tr\\\"; \
-        i=$((i+1)); \
-      done < /data/trackers/trackers.txt\""
-
-method.insert = event.download.inserted_new, simple, d.add_trackers_from_file
+try_import=/data/trackers/trackers-auto.rc
