@@ -57,3 +57,19 @@ pieces.memory.max.set = 2048M
 system.daemon.set = true
 network.scgi.open_local = (cat,(session.path),/rpc.sock)
 schedule2 = socket_chmod, 0, 0, "execute.nothrow=chmod,770,(cat,(session.path),/rpc.sock)"
+
+
+# ========== 自动为“新加入的种子”添加 tracker ==========
+# 条件：
+#   1. 不管当前有没有 tracker
+#   2. 不是私有种子（PT）
+system.method.insert = d.add_trackers_from_file, simple, \
+  "branch=not=d.is_private=, \
+   execute.nothrow=sh,-c,\
+     \"i=0; \
+      while read -r tr; do \
+        [ -n \\\"$tr\\\" ] && d.tracker.insert=\\\"$d.hash\\\",0,\\\"$i\\\",\\\"$tr\\\"; \
+        i=$((i+1)); \
+      done < /data/trackers/trackers.txt\""
+
+method.insert = event.download.inserted_new, simple, d.add_trackers_from_file

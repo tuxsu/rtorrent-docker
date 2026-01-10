@@ -125,7 +125,8 @@ RUN set -eux; \
         shadow \
         ca-certificates \
 		coreutils \
-		curl
+		curl \
+		busybox
 
 COPY --from=builder /target /
 COPY rootfs/ /
@@ -133,6 +134,8 @@ COPY rtorrent.rc /
 
 ENV PUID=1000 \
     PGID=1000 \
+	TRACKER_LIST_URL="https://cf.trackerslist.com/best.txt" \
+	TRACKER_CRON="0 */12 * * *" \
     CONFIG_DIR=/config \
     FLOOD_PORT=3000 \
     DOWNLOAD_DIR=/downloads \
