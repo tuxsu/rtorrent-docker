@@ -57,6 +57,7 @@ pieces.memory.max.set = 2048M
 system.daemon.set = true
 network.scgi.open_local = (cat,(session.path),/rpc.sock)
 schedule2 = socket_chmod, 0, 0, "execute.nothrow=chmod,770,(cat,(session.path),/rpc.sock)"
+schedule2 = socket_chgrp, 0, 0, "execute.nothrow=chgrp,config,(cat,(session.path),/rpc.sock)"
 
 
 # ========== 自动为“新加入的种子”添加 tracker ==========

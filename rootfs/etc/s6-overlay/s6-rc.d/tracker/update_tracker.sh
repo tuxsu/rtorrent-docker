@@ -30,3 +30,8 @@ while IFS= read -r url; do
     printf 'method.set_key = event.download.inserted_new,add_all_trackers_%03d,"d.tracker.insert=\\"%s\\",\\"%s\\""\n' "$i" "$GROUP" "$url" >> "$RC_FILE"
     i=$((i+1))
 done < "$TRACKER_FILE"
+
+if [ "$TRACKER_AUTO_UPDATE" ]; then
+	echo "enable auto update tracker, restart rtorrent"
+	exec s6-svc -r /run/service/rtorrent
+fi

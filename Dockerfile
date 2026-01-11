@@ -136,6 +136,7 @@ ENV PUID=1000 \
     PGID=1000 \
 	TRACKER_LIST_URL="https://cf.trackerslist.com/best.txt" \
 	TRACKER_CRON="0 */12 * * *" \
+	TRACKER_AUTO_UPDATE=true \
     CONFIG_DIR=/config \
     FLOOD_PORT=3000 \
     DOWNLOAD_DIR=/downloads \
@@ -143,6 +144,6 @@ ENV PUID=1000 \
     LD_LIBRARY_PATH=/usr/local/lib \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
-EXPOSE 3000 49164 49164/udp
+EXPOSE 3000 49164 49164/udp 54321 54321/udp
 
 ENTRYPOINT ["/init"]

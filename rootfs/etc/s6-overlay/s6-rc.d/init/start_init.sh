@@ -38,22 +38,22 @@ fi
 echo "Applying file permissions..."
 mkdir -p "$CONFIG_DIR" "$DOWNLOAD_DIR" "$CONFIG_DIR/.rtorrent/session" "$WATCH_DIR"
 
-if [ ! -f "$CONFIG_DIR/rtorrent.rc" ]; then
+if [ ! -f "$CONFIG_DIR/.rtorrent.rc" ]; then
     echo "Config file not found, copying default rtorrent.rc to $CONFIG_DIR"
-    cp -a /rtorrent.rc "$CONFIG_DIR/rtorrent.rc"
+    cp -a /rtorrent.rc "$CONFIG_DIR/.rtorrent.rc"
 fi
 
-chown -R rtorrent:rtorrent "$CONFIG_DIR" "$DOWNLOAD_DIR"
+chown -R "$PUID":"$PGID" "$CONFIG_DIR" "$DOWNLOAD_DIR"
 
 echo "Permission configuration complete."
 
 CRON_SCHEDULE=${TRACKER_CRON:-}
 TRACKER_URL=${TRACKER_LIST_URL:-}
 
-if [ -n "$CRON_SCHEDULE" ] && [ -n "$TRACKER_URL" ]; then
+if [ -n "$CRON_SCHEDULE" ] && [ -n "$TRACKER_URL" ] && [ "$TRACKER_AUTO_UPDATE" ]; then
 	echo "${CRON_SCHEDULE} /etc/s6-overlay/s6-rc.d/tracker/update_tracker.sh > /dev/stdout 2>&1" > /var/spool/cron/crontabs/root
 	echo "Tracker Update Cron configured with schedule $CRON_SCHEDULE"
 	exec /etc/s6-overlay/s6-rc.d/tracker/update_tracker.sh
 else
-	echo "Tracker URL/Tracker Cron is empty.Skipping set cron update tracker"
+	echo "Tracker URL/Tracker Cron is empty or not enable cron.Skipping set cron update tracker. tracker_url: $TRACKER_URL, cron: $CRON_SCHEDULE, tracker_auto_update: $TRACKER_AUTO_UPDATE"
 fi
