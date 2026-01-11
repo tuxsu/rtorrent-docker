@@ -5,7 +5,7 @@ TRACKER_DIR=/data/trackers
 TRACKER_FILE=$TRACKER_DIR/trackers.txt
 TRACKER_URL=${TRACKER_LIST_URL}
 RC_FILE=$TRACKER_DIR/trackers-auto.rc
-GROUP=18
+GROUP=0
 
 if [ ! -d "/data/trackers" ]; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Directory /data/trackers does not exist. Creating..."

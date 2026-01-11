@@ -20,7 +20,7 @@ protocol.encryption.set = allow_incoming,try_outgoing,enable_retry
 # DHT (分布式哈希表) 和 PEX (对等交换) 设置，显著提升找种速度
 dht.mode.set = auto
 # 通常与监听端口范围一致
-dht.port.set = 49164
+dht.port.set = 54321
 protocol.pex.set = yes
 
 ############### 目录与存储配置 ###############
