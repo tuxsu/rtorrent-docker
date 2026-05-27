@@ -60,5 +60,12 @@ schedule2 = socket_chmod, 0, 0, "execute.nothrow=chmod,770,(cat,(session.path),/
 schedule2 = socket_chgrp, 0, 0, "execute.nothrow=chgrp,config,(cat,(session.path),/rpc.sock)"
 
 
-# ========== 自动为“新加入的种子”添加 tracker ==========
+# ========== 自动为”新加入的种子”添加 tracker ==========
+# 创建 tracker 插入方法 (multi 类型，各 tracker 通过 method.set_key 注册到此处)
+method.insert = tracker_insert, multi|private
+# 注册事件：新种子加入时自动调用 tracker_insert 方法
+method.set_key = event.download.inserted_new, auto_trackers, “tracker_insert=”
+# 首次加载 tracker 列表
 try_import=/data/trackers/trackers-auto.rc
+# 定时重新加载 tracker 列表，无需重启 rtorrent
+schedule2 = tracker_reload,300,600,”try_import=/data/trackers/trackers-auto.rc”

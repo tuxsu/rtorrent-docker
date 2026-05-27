@@ -3,21 +3,21 @@ FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS flood_builder
 
 ARG FLOOD_VERSION
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
     apk add --no-cache \
 	git \
 	nodejs \
 	npm
 
 WORKDIR /src
-RUN set -eux; \
+RUN set -euxo pipefail; \
     git clone \
     --branch "$FLOOD_VERSION" \
     --depth 1 \
     --single-branch \
     https://github.com/jesec/flood.git .
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
     npm install; \
     npm run build
 
@@ -27,7 +27,7 @@ ARG LIBTORRENT_VERSION
 ARG RTORRENT_VERSION
 ARG TARGETARCH
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
     apk add --no-cache \
       build-base \
       autoconf \
@@ -51,7 +51,7 @@ RUN set -eux; \
 
 WORKDIR /src
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
     git clone \
     --branch "$LIBTORRENT_VERSION" \
     --depth 1 \
@@ -64,7 +64,7 @@ RUN set -eux; \
     https://github.com/rakshasa/rtorrent.git
 
 WORKDIR /src/libtorrent
-RUN set -eux; \
+RUN set -euxo pipefail; \
     autoreconf -ivf; \
     ./configure; \
     NPROC=$(nproc); \
@@ -74,7 +74,7 @@ RUN set -eux; \
     make install DESTDIR=/libtorrent-root
 
 WORKDIR /src/rtorrent
-RUN set -eux; \
+RUN set -euxo pipefail; \
     autoreconf -ivf; \
     ./configure --with-xmlrpc-c; \
     NPROC=$(nproc); \
@@ -82,7 +82,7 @@ RUN set -eux; \
     make -j"$JOBS"; \
     make install DESTDIR=/rtorrent-root
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
 	mkdir -p /s6-overlay; \
     case "$TARGETARCH" in \
       amd64) S6_ARCH=x86_64 ;; arm64) S6_ARCH=aarch64 ;; \
@@ -95,7 +95,7 @@ RUN set -eux; \
         tar -xJf s6-overlay-${pkg}.tar.xz -C /s6-overlay; \
     done
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
 	find /rtorrent-root -type f -executable -exec strip --strip-all {} + 2>/dev/null || true; \
     find /libtorrent-root -name "*.so*" -exec strip --strip-unneeded {} + 2>/dev/null || true; \
     find /libtorrent-root -name "*.a" -exec strip --strip-debug {} + 2>/dev/null || true; \
@@ -111,7 +111,7 @@ COPY --from=flood_builder /src/dist/. /target/flood
 
 FROM alpine:${ALPINE_VERSION}
 
-RUN set -eux; \
+RUN set -euxo pipefail; \
     apk add --no-cache \
         libstdc++ \
         libgcc \
@@ -124,9 +124,7 @@ RUN set -eux; \
         nodejs \
         shadow \
         ca-certificates \
-		coreutils \
-		curl \
-		busybox
+		curl
 
 COPY --from=builder /target /
 COPY rootfs/ /

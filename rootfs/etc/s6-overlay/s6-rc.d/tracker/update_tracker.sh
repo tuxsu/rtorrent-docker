@@ -22,16 +22,18 @@ else
     echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] Failed to download tracker list, keeping existing file"
 fi
 
-echo "# Auto-generated tracker rc for new torrents - $(date)" > "$RC_FILE"
+echo "# Auto-generated tracker rc - $(date)" > "$RC_FILE"
+# 先清除旧的 tracker 方法，再重建，避免重复累积
+echo "method.erase = tracker_insert" >> "$RC_FILE"
+echo "method.insert = tracker_insert, multi|private" >> "$RC_FILE"
 i=0
 while IFS= read -r url; do
     [ -z "$url" ] && continue
     case "$url" in \#*) continue ;; esac
-    printf 'method.set_key = event.download.inserted_new,add_all_trackers_%03d,"d.tracker.insert=\\"%s\\",\\"%s\\""\n' "$i" "$GROUP" "$url" >> "$RC_FILE"
+    printf 'method.set_key = tracker_insert, t%03d, "d.tracker.insert=\\"%s\\",\\"%s\\""\n' "$i" "$GROUP" "$url" >> "$RC_FILE"
     i=$((i+1))
 done < "$TRACKER_FILE"
 
 if [ "$TRACKER_AUTO_UPDATE" ]; then
-	echo "enable auto update tracker, restart rtorrent"
-	exec s6-svc -r /run/service/rtorrent
+	echo "enable auto update tracker, tracker file updated (rtorrent will reload via schedule2)"
 fi
